@@ -1,5 +1,7 @@
 (function () {
     "use strict";
+    var myLatLng,
+        map;
 
     database.ref("location").on("value", function (snapshot) {
         myLatLng = snapshot.val();
@@ -16,17 +18,19 @@
         return parsed
     }
 
-    var myLatLng,
-        map,
-        user = safelyParseJSON(localStorage['map-track-oauth']);
+    var user = safelyParseJSON(localStorage['map-track-oauth']);
 
     function updatePosition() {
-        if (user.displayName === "Andrew Gremlich") {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition);
-            } else {
-                console.log("Geolocation is not supported by this browser.");
+        try {
+            if (user.displayName === "Andrew Gremlich") {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    console.log("Geolocation is not supported by this browser.");
+                }
             }
+        } catch (e) {
+            console.error("You are not Andrew!")
         }
     }
 
@@ -56,7 +60,7 @@
         });
 
         var infowindow = new google.maps.InfoWindow({
-            content: '<img width="75px" src=' + user.photoURL + '>' + '<h2>Find me!</h2>',
+            content: '<h2>Find me before I move!  I am hiding at this spot.</h2>',
             size: new google.maps.Size(150, 50)
         });
 
