@@ -16,15 +16,49 @@
 </head>
 
 <body>
-    <nav>
-        <button disabled class="login" id="quickstart-sign-in">Sign in with Google</button>
-    </nav>
 
-    <div id="errorLogin">
-        <p>You must be logged with your Google Account in order to participate.</p>
+    <div id="first-page">
+
+        <h1>Welcome to Maptrack!</h1>
+
+        <p>Get a group of friends together. You can play with 2-10 players.</p>
+
+        <h2>Goal of the Game</h2>
+
+        <p>There is one runner, and the rest are trackers. The runner needs to evade the trackers until caught. There is a catch to the game though. The runner is being tracked through their smart phone, and the trackers can find where the runner is on their phone.</p>
+
+        <p>Get ready to run!</p>
+
+        <h2>Tips</h2>
+
+        <p>Play Maptrack on a university, or where there are multiple open buildings with many floors. The runner will have an advantage playing in buildings with multiple floors. The map will not show which floor the runner is on. Trackers will know where the runner is, but they would have to find him in the building.</p>
+
+        <h2>Instructions</h2>
+
+        <h3>Runner</h3>
+
+        <p>In your group of friends, decide who will be the runner. The runner clicks the "Start Session" button below. The runner will be given a number code. Make sure to give the code to the trackers. After the trackers have inputed the code, the runner only has the option to start the session. So run and start the session!</p>
+
+        <h3>Trackers</h3>
+
+        <p>The trackers just need to click the "Join Session" button below and then input the code given from the runner. The runner has the choice to start the session.</p>
+
+        <input value="Start Session" type="button">
+        <input value="Join Session" type="button">
+
     </div>
 
-    <div id="googleMap"></div>
+    <div id="game">
+        <nav>
+            <button disabled class="login" id="quickstart-sign-in">Sign in with Google</button>
+        </nav>
+
+        <div id="errorLogin">
+            <p>You must be logged with your Google Account in order to participate.</p>
+        </div>
+
+        <div id="googleMap"></div>
+    </div>
 
     <footer>
         <script src="http://localhost:35729/livereload.js"></script>
