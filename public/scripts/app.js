@@ -76,7 +76,7 @@
         setInterval(updatePosition, 5000);
     }
 
-    updater();
-    initialize();
+//    updater();
+//    initialize();
 
 }());

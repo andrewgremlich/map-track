@@ -11,7 +11,23 @@ html {
 }
 
 #first-page {
+    display: block;
+    padding-left: 250px;
+    padding-right: 250px;
+    padding-top: 20px;
+    input {
+        font-size: 19px;
+    }
+}
+
+#game {
     display: none;
+}
+
+h1, h2, h3, h4, h5, h6, input, p {
+    font-family: Helvetica, "Century Gothic", sans-serif;
+    font-weight: 100;
+    margin-bottom: 15px;
 }
 
 #googleMap {
