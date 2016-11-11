@@ -1,38 +1,28 @@
-* {
-    box-sizing: border-box;
-    padding: 0px;
-    margin: 0px;
-}
-
-body,
-html {
-    height: 100%;
-    width: 100%;
-}
-
-aside {
-    display: none;
-}
+@import './partials/_reset.scss';
 
 #first-page {
     display: block;
-    padding-left: 250px;
-    padding-right: 250px;
-    padding-top: 20px;
+    width: 100px;
     input {
         font-size: 19px;
         display: block;
     }
+    aside {
+        display: none;
+    }
 }
 
 #game {
-    display: none;
+//    display: none;
+    height: 500px;
+    width: 500px;
 }
 
-h1, h2, h3, h4, h5, h6, input, p {
-    font-family: Helvetica, "Century Gothic", sans-serif;
-    font-weight: 100;
-    margin-bottom: 15px;
+#waitScreen{
+    display: none;
+    input {
+        display: block;
+    }
 }
 
 #googleMap {

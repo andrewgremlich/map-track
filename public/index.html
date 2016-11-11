@@ -42,23 +42,28 @@
 
         </aside>
 
-        <p>Instructions</p>
+        <p id="instructions">Instructions</p>
 
         <h1>Maptrack</h1>
 
         <h2 id="sessionToken"></h2>
 
-        <input id="name" placeholder="Name" type="input">
-        <input id="joinSession" placeholder="Session Code" type="input">
-        <input id="startSession" value="Start Session" type="button">
+        <h2 id="error"></h2>
+
+        <input id="joinSession" placeholder="Session Code" type="number" required>
+        <input id="name" placeholder="Name" type="input" required>
+        <input id="startSession" value="Join Session" type="button">
 
     </div>
 
     <div id="waitScreen">
 
-        <h2 id="timeRemaining"></h2>
+        <h2 id="sessionID"></h2>
         <div id="trackers"></div>
         <div id="runners"></div>
+
+        <input type="button" value="Pick Runner" id="pickRunner">
+        <input type="button" value="Start" id="start">
 
     </div>
 
