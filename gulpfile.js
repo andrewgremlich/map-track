@@ -16,30 +16,10 @@ var autoprefixer = require('gulp-autoprefixer'),
     sass = require('gulp-sass'),
     minifyCSS = require('gulp-clean-css');
 
-/*IMAGE Compression*/
-var imagemin = require('gulp-imagemin'),
-    pngquant = require('imagemin-pngquant'),
-    jpegrecompress = require('imagemin-jpeg-recompress');
-
-/*BROWSERIFY GULP PLUGINS*/
-var browserify = require('browserify'),
-    source = require('vinyl-source-stream');
-
 /*PATHS TO WRITE*/
 var SCRIPTS_PATH = 'public/scripts/**/*.js',
     DIST_PATH = 'public/dist',
-    SCSS_PATH = 'public/scss/**/*.scss',
-    IMAGES_PATH = 'public/images/**/*.{png,jpeg,jpg,gif,svg}';
-
-/*
-Browserify task to bundle the modules.
-*/
-gulp.task('browserify', function () {
-    return browserify('./public/modules/import.js', { debug: true })
-        .bundle()
-        .pipe(source('bundle.js'))
-        .pipe(gulp.dest(DIST_PATH));
-});
+    SCSS_PATH = 'public/scss/**/*.scss';
 
 /*
 Styles for SASS
@@ -72,31 +52,13 @@ gulp.task('scripts', function () {
         }))
         .pipe(sourcemaps.init())
         .pipe(babel({
-            presets: ['es2015', 'react']
+            presets: ['es2015']
         }))
         .pipe(uglify())
         .pipe(concat('scripts.js'))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(DIST_PATH))
         .pipe(livereload());
-});
-
-/*
-Images compression
-*/
-gulp.task('images', function () {
-    return gulp.src(IMAGES_PATH)
-        .pipe(imagemin(
-            [
-                imagemin.gifsicle(),
-                imagemin.jpegtran(),
-                imagemin.optipng(),
-                imagemin.svgo(),
-                pngquant(),
-                jpegrecompress()
-            ]
-        ))
-        .pipe(gulp.dest(DIST_PATH + "/images"))
 });
 
 /*
@@ -126,7 +88,7 @@ gulp.task('scriptsPro', function () {
             this.emit('end');
         }))
         .pipe(babel({
-            presets: ['es2015', 'react']
+            presets: ['es2015']
         }))
         .pipe(uglify())
         .pipe(concat('scripts.js'))
@@ -163,7 +125,7 @@ gulp.task('production', ['clean', 'scriptsPro', 'stylesPro'], function () {
 Default task. Run through all gulp plugins for development.
 Sourcemaps have not been included.
 */
-gulp.task('default', ['clean', 'styles', 'scripts', 'images', 'browserify'], function () {
+gulp.task('default', ['clean', 'styles', 'scripts'], function () {
     console.log("default task.");
 });
 
