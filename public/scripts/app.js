@@ -1,5 +1,10 @@
 (function () {
     "use strict";
+
+    /*********************
+     * APP GLOBAL VARS
+     *********************/
+
     var myLatLng,
         map,
         selectors = {
@@ -9,24 +14,23 @@
             "sessionID": document.querySelector("#sessionID"),
             "waitScreen": document.querySelector("#waitScreen"),
             "firstPage": document.querySelector("#first-page")
-        };
+        },
+        refreshIntervalId,
+        sessionToken = (Math.random() * 100000).toFixed(),
+        refr = `session/${selectors.sessionID.innerText}`;
 
-    function showPosition(position) {
-        myLatLng = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-        }
 
-        database.ref('location').update(myLatLng);
-    }
+    /***********************
+     * MAP SECTION
+     ***********************/
 
     function placeMarker() {
-        var marker = new google.maps.Marker({
+        let marker = new google.maps.Marker({
             zoom: 15,
             position: myLatLng
         });
 
-        var infowindow = new google.maps.InfoWindow({
+        let infowindow = new google.maps.InfoWindow({
             content: '<h2>Find me before I move!  I am hiding at this spot.</h2>',
             size: new google.maps.Size(150, 50)
         });
@@ -40,8 +44,8 @@
     }
 
     function initialize() {
-        var mapProp = {
-            center: new google.maps.LatLng(43.815, -111.7858797),
+        let mapProp = {
+            center: new google.maps.LatLng(myLatLng.lat, myLatLng.lng),
             zoom: 15,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
@@ -49,18 +53,63 @@
         placeMarker();
     }
 
-    initialize();
+    function showPosition(position) {
+        myLatLng = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        }
+
+        database.ref(`${refr}/location`).set(myLatLng);
+
+        initialize();
+    }
+
+    function updatePosition() {
+
+        try {
+
+            let username = localStorage["mapTrackUserName"];
+
+            database.ref(`${refr}/runner`).once("value", snap => {
+                var runner = snap.val();
+
+                if (username === runner) {
+                    if (navigator.geolocation) {
+                        console.log("Is runner");
+                        navigator.geolocation.getCurrentPosition(showPosition);
+                    } else {
+                        console.log("Geolocation is not supported by this browser.");
+                    }
+                } else {
+                    console.log("Is tracker");
+                }
+            })
+
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
     function updater() {
-        setInterval(updatePosition, 5000);
+        refreshIntervalId = setInterval(updatePosition, 5000);
     }
+
+    database.ref(`${refr}/location`).on("value", function (snap) {
+        myLatLng = snap.val();
+        placeMarker();
+    });
+
+
+    /************************************************
+     * Utility functions for page transitions
+     ************************************************/
 
     function transitionToWait(userList, sessionToken) {
         selectors.firstPage.style.display = "none";
         selectors.waitScreen.style.display = "block";
 
-        for (var i = 0; i < userList.length; i++) {
-            var userText = document.createTextNode(userList[i]),
+        for (let i = 0; i < userList.length; i++) {
+            let userText = document.createTextNode(userList[i]),
                 userPara = document.createElement("p");
 
             userPara.appendChild(userText);
@@ -73,17 +122,27 @@
 
     function randomPick(userArray) {
 
-        var random = Math.random(),
+        let random = Math.random(),
             amountUser = userArray.length,
             pick = userArray[Math.floor(random * amountUser)];
 
         return pick;
     }
 
+    function closeSession() {
+        localStorage.removeItem('mapTrackUserName');
+        clearInterval(refreshIntervalId);
+        database.ref(refr).remove();
+    }
+
+
+    /***************
+     * EVENTS
+     ***************/
+
     document.querySelector("#pickRunner").onclick = e => {
 
-        var runner,
-            refr = `session/${selectors.sessionID.innerText}`;
+        let runner;
 
         database.ref(refr + '/participants').once("value", snap => {
             var userArray = snap.val();
@@ -99,7 +158,7 @@
         selectors.waitScreen.style.display = "none";
         document.querySelector("#game").style.display = "block";
 
-        //        updater();
+        updater();
     }
 
     document.querySelector("#startSession").onclick = e => {
@@ -108,6 +167,8 @@
             sessionToken = document.querySelector("#joinSession").value,
             refString = `session/${sessionToken}/participants`,
             uploaderArray = [];
+
+        localStorage["mapTrackUserName"] = username;
 
         uploaderArray.push(username);
 
@@ -129,6 +190,8 @@
         }
     }
 
+    document.querySelector("#stop").onclick = closeSession;
+
     selectors.instructions.onclick = e => {
         e.target.style.display = "none";
         selectors.main.style.display = "none";
@@ -141,7 +204,10 @@
         selectors.instructions.style.display = "block";
     }
 
-    var sessionToken = (Math.random() * 100000).toFixed();
+    /************************************************
+     * START APPLICATION
+     ************************************************/
+
     document.querySelector("#sessionToken").innerHTML = sessionToken;
 
 }());
