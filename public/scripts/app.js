@@ -1,7 +1,15 @@
 (function () {
     "use strict";
     var myLatLng,
-        map;
+        map,
+        selectors = {
+            "main": document.querySelector("main"),
+            "aside": document.querySelector("aside"),
+            "instructions": document.querySelector("#instructions"),
+            "sessionID": document.querySelector("#sessionID"),
+            "waitScreen": document.querySelector("#waitScreen"),
+            "firstPage": document.querySelector("#first-page")
+        };
 
     function showPosition(position) {
         myLatLng = {
@@ -48,8 +56,8 @@
     }
 
     function transitionToWait(userList, sessionToken) {
-        document.querySelector("#first-page").style.display = "none";
-        document.querySelector("#waitScreen").style.display = "block";
+        selectors.firstPage.style.display = "none";
+        selectors.waitScreen.style.display = "block";
 
         for (var i = 0; i < userList.length; i++) {
             var userText = document.createTextNode(userList[i]),
@@ -60,7 +68,7 @@
             document.querySelector("#runners").appendChild(userPara);
         }
 
-        document.querySelector("#sessionID").innerText = sessionToken;
+        selectors.sessionID.innerText = sessionToken;
     }
 
     function randomPick(userArray) {
@@ -75,7 +83,7 @@
     document.querySelector("#pickRunner").onclick = e => {
 
         var runner,
-            refr = `session/${document.querySelector('#sessionID').innerText}`;
+            refr = `session/${selectors.sessionID.innerText}`;
 
         database.ref(refr + '/participants').once("value", snap => {
             var userArray = snap.val();
@@ -87,7 +95,8 @@
     }
 
     document.querySelector("#start").onclick = e => {
-        document.querySelector("#waitScreen").style.display = "none";
+
+        selectors.waitScreen.style.display = "none";
         document.querySelector("#game").style.display = "block";
 
         //        updater();
@@ -118,6 +127,18 @@
         } else {
             document.querySelector("#error").innerText = "You must fill the inputs";
         }
+    }
+
+    selectors.instructions.onclick = e => {
+        e.target.style.display = "none";
+        selectors.main.style.display = "none";
+        selectors.aside.style.display = "block";
+    }
+
+    document.querySelector("#close").onclick = e => {
+        selectors.aside.style.display = "none";
+        selectors.main.style.display = "block";
+        selectors.instructions.style.display = "block";
     }
 
     var sessionToken = (Math.random() * 100000).toFixed();

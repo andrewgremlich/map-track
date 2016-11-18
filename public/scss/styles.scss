@@ -1,31 +1,54 @@
 @import './partials/_reset.scss';
+input {
+    font-size: 20px;
+    display: block;
+    border: 1px solid #d0d0d0;
+    padding: 5px;
+    margin: 5px;
+    margin-bottom: 40px;
+}
 
 #first-page {
-    display: block;
-    width: 100px;
-    input {
-        font-size: 19px;
-        display: block;
-    }
     aside {
         display: none;
+        padding: 10px;
+    }
+    main {
+        display: block;
+        margin: auto;
+        width: 400px;
+        * {
+            text-align: center;
+        }
+        input {
+            margin: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+    }
+}
+
+#waitScreen {
+    display: none;
+    margin: auto;
+    margin-top: 40px;
+    width: 400px;
+    * {
+        text-align: center;
+    }
+    input {
+        margin: auto;
+        margin-bottom: 20px;
+        padding: 10px;
     }
 }
 
 #game {
-//    display: none;
-    height: 500px;
-    width: 500px;
-}
-
-#waitScreen{
     display: none;
-    input {
-        display: block;
-    }
-}
-
-#googleMap {
-    width: 100%;
     height: 100%;
+    width: 100%;
+    #googleMap {
+        width: 100%;
+        height: 100%;
+    }
 }
