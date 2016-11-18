@@ -13,7 +13,9 @@
             "instructions": document.querySelector("#instructions"),
             "sessionID": document.querySelector("#sessionID"),
             "waitScreen": document.querySelector("#waitScreen"),
-            "firstPage": document.querySelector("#first-page")
+            "firstPage": document.querySelector("#first-page"),
+            "game": document.querySelector("#game"),
+            "stop": document.querySelector("#stop")
         },
         refreshIntervalId,
         sessionToken = (Math.random() * 100000).toFixed(),
@@ -61,7 +63,13 @@
 
         database.ref(`${refr}/location`).set(myLatLng);
 
-        initialize();
+        database.ref(`${refr}/location`).on("value", function (snap) {
+            myLatLng = snap.val();
+
+            console.log("refreshing marker");
+
+            placeMarker();
+        });
     }
 
     function updatePosition() {
@@ -93,11 +101,6 @@
     function updater() {
         refreshIntervalId = setInterval(updatePosition, 5000);
     }
-
-    database.ref(`${refr}/location`).on("value", function (snap) {
-        myLatLng = snap.val();
-        placeMarker();
-    });
 
 
     /************************************************
@@ -144,19 +147,24 @@
 
         let runner;
 
-        database.ref(refr + '/participants').once("value", snap => {
+        refr = `session/${selectors.sessionID.innerText}`;
+
+        database.ref(`${refr}/participants`).on("value", snap => {
             var userArray = snap.val();
+
             if (userArray) {
                 runner = randomPick(userArray);
+
                 database.ref(refr + '/runner').set(runner)
             }
-        })
+        });
     }
 
     document.querySelector("#start").onclick = e => {
 
         selectors.waitScreen.style.display = "none";
-        document.querySelector("#game").style.display = "block";
+        selectors.game.style.display = "block";
+        selectors.stop.style.display = "block";
 
         updater();
     }
@@ -175,6 +183,7 @@
         if (sessionToken) {
 
             database.ref(refString).once("value", snap => {
+
                 var partArray = snap.val();
                 if (partArray) {
                     for (var i = 0; i < partArray.length; i++) {
@@ -182,6 +191,7 @@
                     }
                 }
                 database.ref(refString).set(uploaderArray);
+
                 transitionToWait(uploaderArray, sessionToken);
             })
 
@@ -190,7 +200,11 @@
         }
     }
 
-    document.querySelector("#stop").onclick = closeSession;
+    selectors.stop.onclick = e => {
+        selectors.game.style.display = "none";
+        selectors.main.style.display = "block";
+        closeSession();
+    };
 
     selectors.instructions.onclick = e => {
         e.target.style.display = "none";
@@ -207,6 +221,20 @@
     /************************************************
      * START APPLICATION
      ************************************************/
+
+    function defaultStart(position) {
+        myLatLng = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        }
+        initialize();
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(defaultStart);
+    } else {
+        console.log("Geolocation is not supported by this browser.");
+    }
 
     document.querySelector("#sessionToken").innerHTML = sessionToken;
 
