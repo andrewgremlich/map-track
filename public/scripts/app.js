@@ -15,7 +15,8 @@
             "waitScreen": document.querySelector("#waitScreen"),
             "firstPage": document.querySelector("#first-page"),
             "game": document.querySelector("#game"),
-            "stop": document.querySelector("#stop")
+            "stop": document.querySelector("#stop"),
+            "runner": document.querySelector("#runners")
         },
         refreshIntervalId,
         sessionToken = (Math.random() * 100000).toFixed(),
@@ -48,11 +49,10 @@
     function initialize() {
         let mapProp = {
             center: new google.maps.LatLng(myLatLng.lat, myLatLng.lng),
-            zoom: 15,
+            zoom: 14,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
-        placeMarker();
     }
 
     function showPosition(position) {
@@ -71,16 +71,38 @@
             placeMarker();
         });
     }
+    /*
 
-    function updatePosition() {
+    Old position updater
+
+    function updatePosition(runner) {
 
         try {
 
             let username = localStorage["mapTrackUserName"];
 
-            database.ref(`${refr}/runner`).once("value", snap => {
-                var runner = snap.val();
+            if (username === runner) {
+                if (navigator.geolocation) {
+                    console.log("Is runner");
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    console.log("Geolocation is not supported by this browser.");
+                }
+            } else {
+                console.log("Is tracker");
+            }
 
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    */
+
+    function logRunner(runner) {
+        return function () {
+            try {
+
+                let username = localStorage["mapTrackUserName"];
                 if (username === runner) {
                     if (navigator.geolocation) {
                         console.log("Is runner");
@@ -91,15 +113,22 @@
                 } else {
                     console.log("Is tracker");
                 }
-            })
 
-        } catch (e) {
-            console.log(e);
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
 
     function updater() {
-        refreshIntervalId = setInterval(updatePosition, 5000);
+
+        database.ref(`${refr}/runner`).once("value", snap => {
+            var runner = snap.val(),
+                runnerUpdater = logRunner(runner);
+
+            refreshIntervalId = setInterval(runnerUpdater, 5000);
+        })
+
     }
 
 
@@ -107,20 +136,35 @@
      * Utility functions for page transitions
      ************************************************/
 
-    function transitionToWait(userList, sessionToken) {
+    function transitionToWait(sessionToken, appUpdater) {
         selectors.firstPage.style.display = "none";
         selectors.waitScreen.style.display = "block";
 
-        for (let i = 0; i < userList.length; i++) {
-            let userText = document.createTextNode(userList[i]),
-                userPara = document.createElement("p");
-
-            userPara.appendChild(userText);
-
-            document.querySelector("#runners").appendChild(userPara);
-        }
+        appUpdater(selectors.runner);
 
         selectors.sessionID.innerText = sessionToken;
+    }
+
+    function lateUpdater(refString) {
+
+        return function (partDiv) {
+
+            database.ref(refString).on("value", snap => {
+                var partArray = snap.val();
+
+                partDiv.innerHTML = "";
+
+                for (var i = 0; i < partArray.length; i++) {
+                    var text = document.createTextNode(partArray[i]),
+                        para = document.createElement("p");
+
+                    para.appendChild(text);
+
+                    partDiv.appendChild(para);
+                }
+            })
+        }
+
     }
 
     function randomPick(userArray) {
@@ -149,7 +193,7 @@
 
         refr = `session/${selectors.sessionID.innerText}`;
 
-        database.ref(`${refr}/participants`).on("value", snap => {
+        database.ref(`${refr}/participants`).once("value", snap => {
             var userArray = snap.val();
 
             if (userArray) {
@@ -177,7 +221,6 @@
             uploaderArray = [];
 
         localStorage["mapTrackUserName"] = username;
-
         uploaderArray.push(username);
 
         if (sessionToken) {
@@ -192,7 +235,9 @@
                 }
                 database.ref(refString).set(uploaderArray);
 
-                transitionToWait(uploaderArray, sessionToken);
+                var appUpdater = lateUpdater(refString);
+
+                transitionToWait(sessionToken, appUpdater);
             })
 
         } else {
