@@ -18,6 +18,9 @@ Keep your phone's screen on!
 
 Make sure that everyone in the same group inputs the same session ID number.  Once the session ID number is inputed, then have everyone input their name.  Then click "Join Session".  Once all the participants have joined, click "Pick Runner" and then "Start".  Once the runner is caught, then have everyone click "Close Session".
 
+###
+The game works best in Google Chrome!  If the map does not appear in time, use the full screen option to make it appear.
+
 ### Runner
 
 The runner will be randomly picked on the wait screen.
