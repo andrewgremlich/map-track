@@ -44,7 +44,7 @@ input {
 }
 
 #game {
-    display: none;
+    display: block;
     height: 100%;
     width: 100%;
     #googleMap {
@@ -59,4 +59,8 @@ input {
     left: 0;
     z-index: 100;
     display: none;
+}
+
+#runners {
+    color: red;
 }

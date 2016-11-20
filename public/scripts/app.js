@@ -13,7 +13,8 @@ var myLatLng,
         "firstPage": document.querySelector("#first-page"),
         "game": document.querySelector("#game"),
         "stop": document.querySelector("#stop"),
-        "runner": document.querySelector("#runners")
+        "runner": document.querySelector("#runners"),
+        "tracker": document.querySelector("#trackers")
     },
     refreshIntervalId,
     sessionToken = (Math.random() * 100000).toFixed(),
@@ -95,7 +96,7 @@ function transitionToWait(sessionToken, appUpdater) {
     selectors.firstPage.style.display = "none";
     selectors.waitScreen.style.display = "block";
 
-    appUpdater(selectors.runner);
+    appUpdater(selectors.tracker);
 
     selectors.sessionID.innerText = sessionToken;
 }
@@ -154,6 +155,14 @@ document.querySelector("#pickRunner").onclick = e => {
         if (userArray) {
             runner = randomPick(userArray);
 
+            let text = document.createTextNode("Runner is " + runner),
+                para = document.createElement("p");
+
+            para.appendChild(text);
+
+            selectors.runner.innerHTML = "";
+            selectors.runner.appendChild(para);
+
             database.ref(refr + '/runner').set(runner)
         }
     });
@@ -202,7 +211,8 @@ document.querySelector("#startSession").onclick = e => {
 
 selectors.stop.onclick = e => {
     selectors.game.style.display = "none";
-    selectors.main.style.display = "block";
+    selectors.stop.style.display = "none";
+    selectors.firstPage.style.display = "block";
     closeSession();
 };
 
