@@ -25,6 +25,7 @@ var myLatLng,
  * MAP SECTION
  ***********************/
 
+/*Place the marker on the map*/
 function placeMarker() {
 	var marker = new google.maps.Marker({
 		map: map,
@@ -32,6 +33,7 @@ function placeMarker() {
 	});
 }
 
+/*Make the map*/
 function initialize() {
 	let mapProp = {
 		center: myLatLng,
@@ -40,6 +42,7 @@ function initialize() {
 	map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
 }
 
+/*Update the runner's position in Firebase*/
 function showPosition(position) {
 	myLatLng = {
 		lat: position.coords.latitude,
@@ -49,6 +52,9 @@ function showPosition(position) {
 	database.ref(`${refr}/location`).set(myLatLng);
 }
 
+/*Logs the runner's position.  This essentially handles if
+  the current user is the runner, and uses the showPosition
+  function above.*/
 function logRunner(runner, username, sp) {
 	return function () {
 
@@ -65,6 +71,8 @@ function logRunner(runner, username, sp) {
 	}
 }
 
+
+/*This function should handle all the updating*/
 function updater() {
 
 	database.ref(`${refr}/runner`).once("value", snap => {
@@ -74,7 +82,9 @@ function updater() {
 
 		refreshIntervalId = setInterval(runnerUpdater, 5000);
 
-		database.ref(`${refr}/location`).on("value", function (snap) {
+		/*Here should have another marker appear for the users that are not the runner.*/
+
+		database.ref(`${refr}/location`).on("value", snap => {
 			myLatLng = snap.val();
 
 			console.log(myLatLng);
@@ -92,6 +102,7 @@ function updater() {
  * Utility functions for page transitions
  ************************************************/
 
+/*Displays the wait screen for everyone to join the session*/
 function transitionToWait(sessionToken, appUpdater) {
 	selectors.firstPage.style.display = "none";
 	selectors.waitScreen.style.display = "block";
@@ -101,6 +112,8 @@ function transitionToWait(sessionToken, appUpdater) {
 	selectors.sessionID.innerText = sessionToken;
 }
 
+/*Late-comers that join the session will be shown through
+  this function*/
 function lateUpdater(refString) {
 
 	return function (partDiv) {
@@ -123,6 +136,7 @@ function lateUpdater(refString) {
 
 }
 
+/*Randomly pick the runner for the game application*/
 function randomPick(userArray) {
 
 	let random = Math.random(),
@@ -132,7 +146,9 @@ function randomPick(userArray) {
 	return pick;
 }
 
+/*Delete the instance in Firebase and the localStorage data*/
 function closeSession() {
+	console.log("deleting data")
 	localStorage.removeItem('mapTrackUserName');
 	clearInterval(refreshIntervalId);
 	database.ref(refr).remove();
@@ -142,6 +158,24 @@ function closeSession() {
 /***************
  * EVENTS
  ***************/
+
+/*If session not closed by user then delete the user from session*/
+window.onbeforeunload = e => {
+	var username = localStorage['mapTrackUserName'];
+
+	database.ref(`${refr}/participants/`).once('value', e => {
+		var users = e.val();
+		for (var i = 0; i < users.length; i++) {
+			var user = users[i]
+			if (user === username) {
+				users.splice(i, 1)
+				database.ref(`${refr}/participants`).set(users)
+			}
+		}
+	})
+
+	localStorage.removeItem('mapTrackUserName');
+};
 
 document.querySelector("#pickRunner").onclick = e => {
 
@@ -259,15 +293,15 @@ if ('serviceWorker' in navigator) {
 		});
 }
 
-window.addEventListener('online', function(e) {
-    console.log("You are online");
+window.addEventListener('online', function (e) {
+	console.log("You are online");
 }, false);
 
-window.addEventListener('offline', function(e) {
-    console.log("You are offline");
+window.addEventListener('offline', function (e) {
+	console.log("You are offline");
 }, false);
 
 // Check if the user is connected.
 if (navigator.onLine) {
-    console.log("You are online");
+	console.log("You are online");
 }
