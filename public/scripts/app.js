@@ -154,13 +154,14 @@ function closeSession() {
 	database.ref(refr).remove();
 }
 
-function showError(a, b) {
-	let paraText = document.createTextNode(b);
+function runnerSelection(b) {
+	let paraText = document.createTextNode(b),
+		para = document.createElement("p");
 
-	a.appendChild(paraText);
+	para.appendChild(paraText);
 
 	selectors.runner.innerHTML = "";
-	selectors.runner.appendChild(a);
+	selectors.runner.appendChild(para);
 }
 
 
@@ -198,13 +199,7 @@ document.querySelector("#pickRunner").onclick = e => {
 		if (userArray) {
 			runner = randomPick(userArray);
 
-			let text = document.createTextNode("Runner is " + runner),
-				para = document.createElement("p");
-
-			para.appendChild(text);
-
-			selectors.runner.innerHTML = "";
-			selectors.runner.appendChild(para);
+			runnerSelection("Runner is " + runner);
 
 			database.ref(refr + '/runner').set(runner)
 		}
@@ -216,7 +211,6 @@ document.querySelector("#start").onclick = e => {
 	let target = e.target || e.srcElement,
 		parent = target.parentElement,
 		gchildren = parent.children[2].children,
-		errorPara = document.createElement("p"),
 		trackers = parent.children[1].children[0];
 
 
@@ -229,10 +223,10 @@ document.querySelector("#start").onclick = e => {
 
 			updater();
 		} else {
-			showError(errorPara, "Runner must be selected.");
+			runnerSelection("Runner must be selected.");
 		}
 	} else {
-		showError(errorPara, "Must have more than one player.");
+		runnerSelection("Must have more than one player.");
 	}
 }
 
@@ -240,15 +234,23 @@ document.querySelector("#startSession").onclick = e => {
 
 	let username = document.querySelector("#name").value,
 		sessionToken = document.querySelector("#joinSession").value,
-		refString = `session/${sessionToken}/participants`,
+		refString = `session/${sessionToken}`,
 		uploaderArray = [];
+
+	database.ref(refString + '/runner').on("value", e => {
+		let val = e.val();
+
+		if (val) {
+			runnerSelection("Runner is " + val);
+		}
+	})
 
 	localStorage["mapTrackUserName"] = username;
 	uploaderArray.push(username);
 
 	if (sessionToken) {
 
-		database.ref(refString).once("value", snap => {
+		database.ref(refString + '/participants').once("value", snap => {
 
 			var partArray = snap.val();
 			if (partArray) {
@@ -256,9 +258,9 @@ document.querySelector("#startSession").onclick = e => {
 					uploaderArray.push(partArray[i]);
 				}
 			}
-			database.ref(refString).set(uploaderArray);
+			database.ref(refString + '/participants').set(uploaderArray);
 
-			var appUpdater = lateUpdater(refString);
+			var appUpdater = lateUpdater(refString + '/participants');
 
 			transitionToWait(sessionToken, appUpdater);
 		})
