@@ -154,6 +154,15 @@ function closeSession() {
 	database.ref(refr).remove();
 }
 
+function showError(a, b) {
+	let paraText = document.createTextNode(b);
+
+	a.appendChild(paraText);
+
+	selectors.runner.innerHTML = "";
+	selectors.runner.appendChild(a);
+}
+
 
 /***************
  * EVENTS
@@ -204,11 +213,27 @@ document.querySelector("#pickRunner").onclick = e => {
 
 document.querySelector("#start").onclick = e => {
 
-	selectors.waitScreen.style.display = "none";
-	selectors.game.style.display = "block";
-	selectors.stop.style.display = "block";
+	let target = e.target || e.srcElement,
+		parent = target.parentElement,
+		gchildren = parent.children[2].children,
+		errorPara = document.createElement("p"),
+		trackers = parent.children[1].children[0];
 
-	updater();
+
+	if (gchildren.length > 1) {
+		if (trackers && trackers.innerText.includes("Runner is")) {
+			console.log("There is a runner")
+			selectors.waitScreen.style.display = "none";
+			selectors.game.style.display = "block";
+			selectors.stop.style.display = "block";
+
+			updater();
+		} else {
+			showError(errorPara, "Runner must be selected.");
+		}
+	} else {
+		showError(errorPara, "Must have more than one player.");
+	}
 }
 
 document.querySelector("#startSession").onclick = e => {
