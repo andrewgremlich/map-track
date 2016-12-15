@@ -1,9 +1,4 @@
 /*********************
- * TODO
- 1.  watchposition GPS instead of showposition
- *********************/
-
-/*********************
  * APP GLOBAL VARS
  *********************/
 
@@ -66,7 +61,7 @@ function logRunner(runner, username, sp) {
 		if (username === runner) {
 			if (navigator.geolocation) {
 				console.log("Is runner");
-				navigator.geolocation.getCurrentPosition(sp);
+				navigator.geolocation.watchPosition(sp);
 			} else {
 				console.log("Geolocation is not supported by this browser.");
 			}
