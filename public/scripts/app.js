@@ -1,4 +1,9 @@
 /*********************
+ * TODO
+ 1.  watchposition GPS instead of showposition
+ *********************/
+
+/*********************
  * APP GLOBAL VARS
  *********************/
 
@@ -264,12 +269,11 @@ document.querySelector("#startSession").onclick = e => {
 		})
 
 	} else {
-		document.querySelector("#error").innerText = "You must fill the inputs";
+		document.querySelector("#inputerror").innerText = "You must fill the inputs";
 	}
 }
 
 selectors.stop.onclick = e => {
-	selectors.game.style.display = "none";
 	selectors.stop.style.display = "none";
 	selectors.firstPage.style.display = "block";
 	closeSession();
