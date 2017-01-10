@@ -7,10 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="./dist/styles.css" rel="stylesheet" type="text/css">
 
-	<link rel="manifest" href="./manifest.json">
+    <link rel="manifest" href="./manifest.json">
+
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Maptrack">
+    <link rel="apple-touch-icon" href="images/icons/icon-152x152.png">
+
+    <!--Add to Windows Tile-->
+    <meta name="msapplication-TileImage" content="images/icons/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#1e7662">
 
     <!--Firebase-->
-	<script src="https://www.gstatic.com/firebasejs/3.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.6.1/firebase-database.js"></script>
 </head>
 
@@ -31,13 +41,13 @@
 
             <p>Play Maptrack on a university, or where there are multiple open buildings with many floors. The runner will have an advantage playing in buildings with multiple floors. The map will not show which floor the runner is on. Trackers will know where the runner is, but they would have to find him in the building.</p>
 
-			<p>The Trackers may team up together in order to trap the runner.  You decide!</p>
+            <p>The Trackers may team up together in order to trap the runner. You decide!</p>
 
             <p>Keep your phone's screen on!</p>
 
             <h2>Instructions</h2>
 
-            <p>Make sure that everyone in the same group inputs the same session ID number.  Once the session ID number is inputed, then have everyone input their name.  Then click "Join Session".  Once all the participants have joined, click "Pick Runner" and then "Start".  Once the runner is caught, then have everyone click "Close Session".</p>
+            <p>Make sure that everyone in the same group inputs the same session ID number. Once the session ID number is inputed, then have everyone input their name. Then click "Join Session". Once all the participants have joined, click "Pick Runner" and then "Start". Once the runner is caught, then have everyone click "Close Session".</p>
 
             <h3>Runner</h3>
 
