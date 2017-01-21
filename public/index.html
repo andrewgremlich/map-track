@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="./dist/styles.css" rel="stylesheet" type="text/css">
 
-    <link rel="manifest" href="./manifest.json">
+	<link rel="manifest" href="./manifest.json">
 
     <!-- Add to home screen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
     <meta name="msapplication-TileColor" content="#1e7662">
 
     <!--Firebase-->
-    <script src="https://www.gstatic.com/firebasejs/3.6.1/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/3.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.6.1/firebase-database.js"></script>
 </head>
 
@@ -28,6 +28,7 @@
 
     <div id="first-page">
 
+        <!--Instructions page-->
         <aside>
             <p>Get a group of friends together. You can play with 2-10 players.</p>
 
@@ -41,13 +42,13 @@
 
             <p>Play Maptrack on a university, or where there are multiple open buildings with many floors. The runner will have an advantage playing in buildings with multiple floors. The map will not show which floor the runner is on. Trackers will know where the runner is, but they would have to find him in the building.</p>
 
-            <p>The Trackers may team up together in order to trap the runner. You decide!</p>
+			<p>The Trackers may team up together in order to trap the runner.  You decide!</p>
 
             <p>Keep your phone's screen on!</p>
 
             <h2>Instructions</h2>
 
-            <p>Make sure that everyone in the same group inputs the same session ID number. Once the session ID number is inputed, then have everyone input their name. Then click "Join Session". Once all the participants have joined, click "Pick Runner" and then "Start". Once the runner is caught, then have everyone click "Close Session".</p>
+            <p>Make sure that everyone in the same group inputs the same session ID number.  Once the session ID number is inputed, then have everyone input their name.  Then click "Join Session".  Once all the participants have joined, click "Pick Runner" and then "Start".  Once the runner is caught, then have everyone click "Close Session".</p>
 
             <h3>Runner</h3>
 
@@ -59,6 +60,7 @@
 
         <input type="button" id="instructions" value="Instructions">
 
+        <!--First page instructions-->
         <main>
 
             <h1>Maptrack</h1>
@@ -74,6 +76,7 @@
 
     </div>
 
+    <!--Wait screen for all the players-->
     <div id="waitScreen">
 
         <h2 id="sessionID"></h2>
@@ -86,16 +89,16 @@
 
     </div>
 
+    <!--Map - shown on all screens-->
     <div id="game">
         <div id="googleMap"></div>
     </div>
 
     <input type="button" value="Stop Session" id="stop">
 
+    <!--Script magic!-->
     <footer>
-
         <script src="./dist/scripts.js"></script>
-
         <!--Google Maps-->
         <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDRLRX-N2DoaAaXfDuBf6N0Xqh3pAIiFW8&callback=initMap"></script>
     </footer>

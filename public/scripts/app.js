@@ -3,22 +3,22 @@
  *********************/
 
 var myLatLng,
-	map,
-	selectors = {
-		"main": document.querySelector("main"),
-		"aside": document.querySelector("aside"),
-		"instructions": document.querySelector("#instructions"),
-		"sessionID": document.querySelector("#sessionID"),
-		"waitScreen": document.querySelector("#waitScreen"),
-		"firstPage": document.querySelector("#first-page"),
-		"game": document.querySelector("#game"),
-		"stop": document.querySelector("#stop"),
-		"runner": document.querySelector("#runners"),
-		"tracker": document.querySelector("#trackers")
-	},
-	refreshIntervalId,
-	sessionToken = (Math.random() * 100000).toFixed(),
-	refr = `session/${selectors.sessionID.innerText}`;
+    map,
+    selectors = {
+        "main": document.querySelector("main"),
+        "aside": document.querySelector("aside"),
+        "instructions": document.querySelector("#instructions"),
+        "sessionID": document.querySelector("#sessionID"),
+        "waitScreen": document.querySelector("#waitScreen"),
+        "firstPage": document.querySelector("#first-page"),
+        "game": document.querySelector("#game"),
+        "stop": document.querySelector("#stop"),
+        "runner": document.querySelector("#runners"),
+        "tracker": document.querySelector("#trackers")
+    },
+    refreshIntervalId,
+    sessionToken = (Math.random() * 100000).toFixed(),
+    refr = `session/${selectors.sessionID.innerText}`;
 
 
 /***********************
@@ -27,73 +27,79 @@ var myLatLng,
 
 /*Place the marker on the map*/
 function placeMarker() {
-	var marker = new google.maps.Marker({
-		map: map,
-		position: myLatLng
-	});
+    var marker = new google.maps.Marker({
+        map: map,
+        position: myLatLng
+    });
 }
 
 /*Make the map*/
 function initialize() {
-	let mapProp = {
-		center: myLatLng,
-		zoom: 14
-	};
-	map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+    let mapProp = {
+        center: myLatLng,
+        zoom: 14
+    };
+    map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
 }
 
 /*Update the runner's position in Firebase*/
 function showPosition(position) {
-	myLatLng = {
-		lat: position.coords.latitude,
-		lng: position.coords.longitude
-	}
+    myLatLng = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+    }
 
-	database.ref(`${refr}/location`).set(myLatLng);
+    database.ref(`${refr}/location`).set(myLatLng);
 }
 
 /*Logs the runner's position.  This essentially handles if
   the current user is the runner, and uses the showPosition
   function above.*/
-function logRunner(runner, username, sp) {
-	return function () {
+var geo_options = {
+    enableHighAccuracy: true,
+    maximumAge: 30000,
+    timeout: 27000
+};
 
-		if (username === runner) {
-			if (navigator.geolocation) {
-				console.log("Is runner");
-				navigator.geolocation.watchPosition(sp);
-			} else {
-				console.log("Geolocation is not supported by this browser.");
-			}
-		} else {
-			console.log("Is tracker");
-		}
-	}
+function logRunner(runner, username, sp) {
+    return function () {
+
+        if (username === runner) {
+            if (navigator.geolocation) {
+                console.log("Is runner");
+                navigator.geolocation.watchPosition(sp, (err) => { console.log(err) }, geo_options);
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        } else {
+            console.log("Is tracker");
+        }
+    }
 }
 
 
 /*This function should handle all the updating*/
 function updater() {
 
-	database.ref(`${refr}/runner`).once("value", snap => {
-		let runner = snap.val(),
-			username = localStorage["mapTrackUserName"],
-			runnerUpdater = logRunner(runner, username, showPosition);
+    database.ref(`${refr}/runner`).once("value", snap => {
+        let runner = snap.val(),
+            username = localStorage["mapTrackUserName"],
+            runnerUpdater = logRunner(runner, username, showPosition);
 
-		refreshIntervalId = setInterval(runnerUpdater, 5000);
+        refreshIntervalId = setInterval(runnerUpdater, 5000);
 
-		/*Here should have another marker appear for the users that are not the runner.*/
+        /*Here should have another marker appear for the users that are not the runner.*/
 
-		database.ref(`${refr}/location`).on("value", snap => {
-			myLatLng = snap.val();
+        database.ref(`${refr}/location`).on("value", snap => {
+            myLatLng = snap.val();
 
-			console.log(myLatLng);
+            console.log(myLatLng);
 
-			console.log("refreshing marker");
+            console.log("refreshing marker");
 
-			placeMarker();
-		});
-	})
+            placeMarker();
+        });
+    })
 
 }
 
@@ -104,64 +110,64 @@ function updater() {
 
 /*Displays the wait screen for everyone to join the session*/
 function transitionToWait(sessionToken, appUpdater) {
-	selectors.firstPage.style.display = "none";
-	selectors.waitScreen.style.display = "block";
+    selectors.firstPage.style.display = "none";
+    selectors.waitScreen.style.display = "block";
 
-	appUpdater(selectors.tracker);
+    appUpdater(selectors.tracker);
 
-	selectors.sessionID.innerText = sessionToken;
+    selectors.sessionID.innerText = sessionToken;
 }
 
 /*Late-comers that join the session will be shown through
   this function*/
 function lateUpdater(refString) {
 
-	return function (partDiv) {
+    return function (partDiv) {
 
-		database.ref(refString).on("value", snap => {
-			var partArray = snap.val();
+        database.ref(refString).on("value", snap => {
+            var partArray = snap.val();
 
-			partDiv.innerHTML = "";
+            partDiv.innerHTML = "";
 
-			for (var i = 0; i < partArray.length; i++) {
-				var text = document.createTextNode(partArray[i]),
-					para = document.createElement("p");
+            for (var i = 0; i < partArray.length; i++) {
+                var text = document.createTextNode(partArray[i]),
+                    para = document.createElement("p");
 
-				para.appendChild(text);
+                para.appendChild(text);
 
-				partDiv.appendChild(para);
-			}
-		})
-	}
+                partDiv.appendChild(para);
+            }
+        })
+    }
 
 }
 
 /*Randomly pick the runner for the game application*/
 function randomPick(userArray) {
 
-	let random = Math.random(),
-		amountUser = userArray.length,
-		pick = userArray[Math.floor(random * amountUser)];
+    let random = Math.random(),
+        amountUser = userArray.length,
+        pick = userArray[Math.floor(random * amountUser)];
 
-	return pick;
+    return pick;
 }
 
 /*Delete the instance in Firebase and the localStorage data*/
 function closeSession() {
-	console.log("deleting data")
-	localStorage.removeItem('mapTrackUserName');
-	clearInterval(refreshIntervalId);
-	database.ref(refr).remove();
+    console.log("deleting data")
+    localStorage.removeItem('mapTrackUserName');
+    clearInterval(refreshIntervalId);
+    database.ref(refr).remove();
 }
 
 function runnerSelection(b) {
-	let paraText = document.createTextNode(b),
-		para = document.createElement("p");
+    let paraText = document.createTextNode(b),
+        para = document.createElement("p");
 
-	para.appendChild(paraText);
+    para.appendChild(paraText);
 
-	selectors.runner.innerHTML = "";
-	selectors.runner.appendChild(para);
+    selectors.runner.innerHTML = "";
+    selectors.runner.appendChild(para);
 }
 
 
@@ -171,121 +177,121 @@ function runnerSelection(b) {
 
 /*If session not closed by user then delete the user from session*/
 window.onbeforeunload = e => {
-	var username = localStorage['mapTrackUserName'];
+    var username = localStorage['mapTrackUserName'];
 
-	database.ref(`${refr}/participants/`).once('value', e => {
-		var users = e.val();
-		for (var i = 0; i < users.length; i++) {
-			var user = users[i]
-			if (user === username) {
-				users.splice(i, 1)
-				database.ref(`${refr}/participants`).set(users)
-			}
-		}
-	})
+    database.ref(`${refr}/participants/`).once('value', e => {
+        var users = e.val();
+        for (var i = 0; i < users.length; i++) {
+            var user = users[i]
+            if (user === username) {
+                users.splice(i, 1)
+                database.ref(`${refr}/participants`).set(users)
+            }
+        }
+    })
 
-	localStorage.removeItem('mapTrackUserName');
+    localStorage.removeItem('mapTrackUserName');
 };
 
 document.querySelector("#pickRunner").onclick = e => {
 
-	let runner;
+    let runner;
 
-	refr = `session/${selectors.sessionID.innerText}`;
+    refr = `session/${selectors.sessionID.innerText}`;
 
-	database.ref(`${refr}/participants`).once("value", snap => {
-		var userArray = snap.val();
+    database.ref(`${refr}/participants`).once("value", snap => {
+        var userArray = snap.val();
 
-		if (userArray) {
-			runner = randomPick(userArray);
+        if (userArray) {
+            runner = randomPick(userArray);
 
-			runnerSelection("Runner is " + runner);
+            runnerSelection("Runner is " + runner);
 
-			database.ref(refr + '/runner').set(runner)
-		}
-	});
+            database.ref(refr + '/runner').set(runner)
+        }
+    });
 }
 
 document.querySelector("#start").onclick = e => {
 
-	let target = e.target || e.srcElement,
-		parent = target.parentElement,
-		gchildren = parent.children[2].children,
-		trackers = parent.children[1].children[0];
+    let target = e.target || e.srcElement,
+        parent = target.parentElement,
+        gchildren = parent.children[2].children,
+        trackers = parent.children[1].children[0];
 
 
-	if (gchildren.length > 1) {
-		if (trackers && trackers.innerText.includes("Runner is")) {
-			console.log("There is a runner")
-			selectors.waitScreen.style.display = "none";
-			selectors.game.style.display = "block";
-			selectors.stop.style.display = "block";
+    if (gchildren.length > 1) {
+        if (trackers && trackers.innerText.includes("Runner is")) {
+            console.log("There is a runner")
+            selectors.waitScreen.style.display = "none";
+            selectors.game.style.display = "block";
+            selectors.stop.style.display = "block";
 
-			updater();
-		} else {
-			runnerSelection("Runner must be selected.");
-		}
-	} else {
-		runnerSelection("Must have more than one player.");
-	}
+            updater();
+        } else {
+            runnerSelection("Runner must be selected.");
+        }
+    } else {
+        runnerSelection("Must have more than one player.");
+    }
 }
 
 document.querySelector("#startSession").onclick = e => {
 
-	let username = document.querySelector("#name").value,
-		sessionToken = document.querySelector("#joinSession").value,
-		refString = `session/${sessionToken}`,
-		uploaderArray = [];
+    let username = document.querySelector("#name").value,
+        sessionToken = document.querySelector("#joinSession").value,
+        refString = `session/${sessionToken}`,
+        uploaderArray = [];
 
-	database.ref(refString + '/runner').on("value", e => {
-		let val = e.val();
+    database.ref(refString + '/runner').on("value", e => {
+        let val = e.val();
 
-		if (val) {
-			runnerSelection("Runner is " + val);
-		}
-	})
+        if (val) {
+            runnerSelection("Runner is " + val);
+        }
+    })
 
-	localStorage["mapTrackUserName"] = username;
-	uploaderArray.push(username);
+    localStorage["mapTrackUserName"] = username;
+    uploaderArray.push(username);
 
-	if (sessionToken) {
+    if (sessionToken) {
 
-		database.ref(refString + '/participants').once("value", snap => {
+        database.ref(refString + '/participants').once("value", snap => {
 
-			var partArray = snap.val();
-			if (partArray) {
-				for (var i = 0; i < partArray.length; i++) {
-					uploaderArray.push(partArray[i]);
-				}
-			}
-			database.ref(refString + '/participants').set(uploaderArray);
+            var partArray = snap.val();
+            if (partArray) {
+                for (var i = 0; i < partArray.length; i++) {
+                    uploaderArray.push(partArray[i]);
+                }
+            }
+            database.ref(refString + '/participants').set(uploaderArray);
 
-			var appUpdater = lateUpdater(refString + '/participants');
+            var appUpdater = lateUpdater(refString + '/participants');
 
-			transitionToWait(sessionToken, appUpdater);
-		})
+            transitionToWait(sessionToken, appUpdater);
+        })
 
-	} else {
-		document.querySelector("#inputerror").innerText = "You must fill the inputs";
-	}
+    } else {
+        document.querySelector("#inputerror").innerText = "You must fill the inputs";
+    }
 }
 
 selectors.stop.onclick = e => {
-	selectors.stop.style.display = "none";
-	selectors.firstPage.style.display = "block";
-	closeSession();
+    selectors.stop.style.display = "none";
+    selectors.firstPage.style.display = "block";
+    closeSession();
 };
 
 selectors.instructions.onclick = e => {
-	e.target.style.display = "none";
-	selectors.main.style.display = "none";
-	selectors.aside.style.display = "block";
+    e.target.style.display = "none";
+    selectors.main.style.display = "none";
+    selectors.aside.style.display = "block";
 }
 
 document.querySelector("#close").onclick = e => {
-	selectors.aside.style.display = "none";
-	selectors.main.style.display = "block";
-	selectors.instructions.style.display = "block";
+    selectors.aside.style.display = "none";
+    selectors.main.style.display = "block";
+    selectors.instructions.style.display = "block";
 }
 
 /************************************************
@@ -293,41 +299,41 @@ document.querySelector("#close").onclick = e => {
  ************************************************/
 
 function defaultStart(position) {
-	myLatLng = {
-		lat: position.coords.latitude,
-		lng: position.coords.longitude
-	}
-	initialize();
-	placeMarker();
+    myLatLng = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+    }
+    initialize();
+    placeMarker();
 }
 
 function initMap() {
-	if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(defaultStart);
-	} else {
-		console.log("Geolocation is not supported by this browser.");
-	}
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(defaultStart);
+    } else {
+        console.log("Geolocation is not supported by this browser.");
+    }
 }
 
 document.querySelector("#sessionToken").innerHTML = sessionToken;
 
 if ('serviceWorker' in navigator) {
-	navigator.serviceWorker
-		.register('./service-worker.js')
-		.then(function () {
-			console.log('Service Worker Registered');
-		});
+    navigator.serviceWorker
+        .register('./service-worker.js')
+        .then(function () {
+            console.log('Service Worker Registered');
+        });
 }
 
 window.addEventListener('online', function (e) {
-	console.log("You are online");
+    console.log("You are online");
 }, false);
 
 window.addEventListener('offline', function (e) {
-	console.log("You are offline");
+    console.log("You are offline");
 }, false);
 
 // Check if the user is connected.
 if (navigator.onLine) {
-	console.log("You are online");
+    console.log("You are online");
 }
