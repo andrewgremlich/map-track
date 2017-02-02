@@ -14,6 +14,10 @@ Play Maptrack on a university, or where there are multiple open buildings with m
 
 Keep your phone's screen on!
 
+### Note
+
+Maptrack GPS location ability works best with newer phones.
+
 ## Instructions
 
 Make sure that everyone in the same group inputs the same session ID number.  Once the session ID number is inputed, then have everyone input their name.  Then click "Join Session".  Once all the participants have joined, click "Pick Runner" and then "Start".  Once the runner is caught, then have everyone click "Close Session".
