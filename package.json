@@ -1,11 +1,10 @@
 {
   "name": "map-track",
-  "version": "1.0.3",
+  "version": "1.1.4",
   "description": "A game application idea to track the GPS locations of cell phones. The goal is for the persecutors to find the criminal using this application. The criminal and persecutors are in constant motion chasing each other.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+      "lint": "eslint ./public/scripts/"
   },
   "author": "Andrew Gremlich",
   "license": "MIT",
