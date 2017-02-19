@@ -28,3 +28,6 @@ The game works best in Google Chrome!  If the map does not appear in time, use t
 ### Runner
 
 The runner will be randomly picked on the wait screen.
+
+### Hobby Features
+This was a quick application to see if I could play the Snitch in a game of Muggle Quidditch in a creative way.  I changed it up to see whoever could be the Runner and a PWApp.
